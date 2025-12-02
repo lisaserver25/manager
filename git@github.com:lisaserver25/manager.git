@@ -62,7 +62,8 @@ while true; do
            sudo ufw allow from 69.197.162.66 && \
            sudo ufw allow from 51.15.15.134 && \
            sudo ufw allow from 37.16.74.242 && \
-# Cliente: PROMOS
+           sudo ufw allow from 37.16.74.127 && \
+# Cliente: PROMOSssssssssss
            sudo ufw allow from 37.16.74.127 && \
            sudo ufw allow from 37.16.74.128 && \
            sudo ufw allow from 37.16.74.129 && \
