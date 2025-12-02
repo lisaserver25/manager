@@ -62,9 +62,8 @@ while true; do
            sudo ufw allow from 69.197.162.66 && \
            sudo ufw allow from 51.15.15.134 && \
            sudo ufw allow from 37.16.74.242 && \
-           sudo ufw allow from 37.16.74.127 && \
-# Cliente: PROMOS
-           sudo ufw allow from 37.16.74.127 && \
+# Cliente: WORKER 5
+           sudo ufw allow from 37.16.74.127 comment 'IP PRINCIPAL' && \
            sudo ufw allow from 37.16.74.128 && \
            sudo ufw allow from 37.16.74.129 && \
            sudo ufw allow from 37.16.74.130 && \
@@ -75,8 +74,7 @@ while true; do
            sudo ufw allow from 37.16.74.135 && \
            sudo ufw allow from 37.16.74.136 && \
            sudo ufw allow from 37.16.74.137 && \
-           sudo ufw allow from 37.16.74.138 && \           
-           # Nginx Proxy Manager - Acceso público
+           sudo ufw allow from 37.16.74.138 && \# Nginx Proxy Manager - Acceso público
            sudo ufw allow 80/tcp comment 'NPM HTTP public' && \
            sudo ufw allow 443/tcp comment 'NPM HTTPS public' && \
            # Habilitar firewall
