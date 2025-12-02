@@ -1,0 +1,90 @@
+#!/bin/bash
+if ! locale -a | grep -q "es_ES.UTF-8"; then
+    echo "Instalando soporte para español UTF-8..."
+    sudo locale-gen es_ES.UTF-8
+    sudo update-locale LANG=es_ES.UTF-8
+fi
+export LC_ALL=es_ES.UTF-8
+export LANG=es_ES.UTF-8
+export LANGUAGE=es_ES.UTF-8
+titulo() {
+    clear
+    echo -e "\n\n      \e[1;34m====================================="
+    echo -e "      🛡🛡 INSTALADOR REPROMAX.SECURE 🛡🛡      "
+    echo -e "      =====================================\e[0m\n"
+}
+IP=$(hostname -I | awk '{print $1}')
+declare -A ejecutados
+while true; do
+    titulo
+    echo -e "      \e[1;36mMenú de opciones:\e[0m"
+    echo "      -------------------------------------"
+    echo -e "      \e[1;36m1. ACTUALIZACIÓN DE SISTEMA\e[0m ${ejecutados[1]}"
+    echo -e "      \e[1;36m2. AJUSTES DE SISTEMA\e[0m ${ejecutados[2]}"
+    echo -e "      \e[1;36m3. INSTALACIÓN DOCKER\e[0m ${ejecutados[3]}"
+    echo -e "      \e[1;36m4. Recargar grupos (Esto cierra el Script)\e[0m ${ejecutados[4]}"
+    echo -e "      \e[1;36m5. REGISTRO DE PUERTOS E IPS (UFW)\e[0m ${ejecutados[5]}"
+    echo -e "      \e[1;36m6. TOKEN DOCKER (Swarm Join)\e[0m ${ejecutados[6]}"
+    echo -e "      \e[1;31m0. Salir\e[0m"
+    echo "      -------------------------------------"
+    read -p "      Seleccione una opción: " opcion
+    case $opcion in
+        1) sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y && sudo apt autoremove --purge -y && ejecutados[1]="✔️";;
+        2) sudo apt-get install -y ca-certificates curl gnupg && ejecutados[2]="✔️";;
+        3) for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove -y $pkg; done && \
+           sudo install -m 0755 -d /etc/apt/keyrings && \
+           sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && \
+           sudo chmod a+r /etc/apt/keyrings/docker.asc && \
+           echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+           sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && \
+           sudo docker run hello-world && sudo docker run hello-world && ejecutados[3]="✔️";;
+        4) sudo newgrp docker; echo "      Presione Enter para continuar..."; read && ejecutados[4]="✔️";;
+        5) # Instalar UFW
+           sudo apt install ufw -y && \
+           # Resetear reglas existentes
+           sudo ufw --force reset && \
+           # Política por defecto: denegar todo
+           sudo ufw default deny incoming && \
+           sudo ufw default allow outgoing && \
+           # Permitir SSH
+           sudo ufw limit ssh comment 'Limit SSH connections' && \
+           sudo ufw allow ssh comment 'SSH administration' && \
+           # Docker Swarm
+           sudo ufw allow 7946/tcp comment 'Docker Swarm node discovery TCP' && \
+           sudo ufw allow 7946/udp comment 'Docker Swarm node discovery UDP' && \
+           sudo ufw allow 4789/udp comment 'Docker Swarm overlay network' && \
+           # Permitir IPs específicas del Swarm (Managers/Workers)
+           sudo ufw allow from 88.148.46.89 && \
+           sudo ufw allow from 185.102.172.250 && \
+           sudo ufw allow from 185.138.166.29 && \
+           sudo ufw allow from 185.138.166.31 && \
+           sudo ufw allow from 91.194.84.58 && \
+           sudo ufw allow from 69.197.162.66 && \
+           sudo ufw allow from 51.15.15.134 && \
+           sudo ufw allow from 37.16.74.242 && \
+# Cliente: PROMOS
+           sudo ufw allow from 37.16.74.127 && \
+           sudo ufw allow from 37.16.74.128 && \
+           sudo ufw allow from 37.16.74.129 && \
+           sudo ufw allow from 37.16.74.130 && \
+           sudo ufw allow from 37.16.74.131 && \
+           sudo ufw allow from 37.16.74.132 && \
+           sudo ufw allow from 37.16.74.133 && \
+           sudo ufw allow from 37.16.74.134 && \
+           sudo ufw allow from 37.16.74.135 && \
+           sudo ufw allow from 37.16.74.136 && \
+           sudo ufw allow from 37.16.74.137 && \
+           sudo ufw allow from 37.16.74.138 && \           
+           # Nginx Proxy Manager - Acceso público
+           sudo ufw allow 80/tcp comment 'NPM HTTP public' && \
+           sudo ufw allow 443/tcp comment 'NPM HTTPS public' && \
+           # Habilitar firewall
+           sudo ufw --force enable && \
+           # Mostrar estado
+           sudo ufw status verbose && ejecutados[5]="✔️";;
+        6) sudo docker swarm join --token SWMTKN-1-3shsb4dtq22xpchvxq84va42eoeatqa8hw5u49zuh6x2j46m53-ad5nsn5lzry5jf97qdnz6bufq 185.102.172.250:2377 && ejecutados[6]="✔️";;
+        0) echo -e "      \e[1;32mSaliendo...\e[0m"; exit 0;;
+        *) echo -e "      \e[1;31mOpción no válida. Inténtelo de nuevo.\e[0m";;
+    esac
+    read -p "      Presione Enter para continuar..." 
+done
